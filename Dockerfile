@@ -1,8 +1,8 @@
-FROM php:8.2-cli
+FROM php:8.2-cli-alpine
 
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     curl zip unzip git \
-    libsqlite3-dev \
+    sqlite-dev \
     && docker-php-ext-install pdo pdo_sqlite
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
