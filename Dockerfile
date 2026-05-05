@@ -10,11 +10,19 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader \
-    && touch database/database.sqlite
+RUN cp .env.production .env
+
+RUN composer install --no-dev --optimize-autoloader
+
+RUN mkdir -p storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache \
+    storage/logs \
+    bootstrap/cache \
+    && touch database/database.sqlite \
+    && chmod -R 777 storage bootstrap/cache \
+    && php artisan migrate --force
 
 EXPOSE 8000
 
-CMD php artisan key:generate --force && \
-    php artisan migrate --force && \
-    php artisan serve --host=0.0.0.0 --port=$PORT
+CMD php artisan serve --host=0.0.0.0 --port=$PORT
