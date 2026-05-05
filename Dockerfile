@@ -10,9 +10,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . .
 
+RUN cp .env.production .env
+
 RUN composer install --no-dev --optimize-autoloader
 
-RUN php artisan config:cache
+RUN php artisan key:generate \
+    && touch database/database.sqlite \
+    && php artisan migrate --force \
+    && php artisan config:cache
 
 EXPOSE 8000
 
